@@ -8,93 +8,14 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div fxLayout="column" fxLayoutGap="40px" style="margin: 20px">
-  <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="20px">
-    <div fxFlex fxFill>
-      <div fxLayout="column" fxLayoutGap="20px">
-        <mat-card fxFlex fxFill>
-          <mat-card-content>
-            <div fxLayout="row" fxLayoutGap="10px">
-              <form fxFlex fxFill>
-                <mat-form-field class="app-full-width">
-                  <input matInput placeholder="Seed node's WebSocket" [(ngModel)]="seedNodes" name="seedNodes">
-                  <mat-icon matSuffix *ngIf="(wsOnline | async); else wsOfflineIcon" matTooltip="Connection is online">done_all</mat-icon>
-                  <ng-template #wsOfflineIcon>
-                    <mat-icon matSuffix color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
-                  </ng-template>
-                </mat-form-field>
-              </form>
-              <button mat-raised-button style="height: 40px" matTooltip="Click to stop connection to this seed node"
-                *ngIf="(wsOnline | async); else wsOfflineBtn" color="accent"
-                (click)="stopWsConnection()">
-                Stop
-              </button>
-              <ng-template #wsOfflineBtn>
-                <button mat-raised-button style="height: 40px" matTooltip="Click to connect to this seed node"
-                  color="primary" (click)="startWsConnection()">
-                  Connect
-                </button>
-              </ng-template>
-            </div>
-          </mat-card-content>
-        </mat-card>
+<mat-tab-group color="accent">
+  <mat-tab *ngFor="let seedNode of seedNodes">
+    <ng-template mat-tab-label>
+      <mat-icon *ngIf="!seedNodeOnlineStatuses[seedNode]" color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
+      <mat-icon *ngIf="seedNodeOnlineStatuses[seedNode]" matTooltip="Connection is online">done_all</mat-icon>
+      <span style="margin-left: 4px">{{seedNodeTabTitles[seedNode]}}</span>
+    </ng-template>
+    <app-monitor-container [seedNode]="seedNode" (wsOnlineChange)="setWsOnlineChange(seedNode, $event)"></app-monitor-container>
+  </mat-tab>
+</mat-tab-group>
 
-        <mat-card fxFlex fxFill>
-          <mat-card-header>
-            <mat-card-title>CLUSTER STATE</mat-card-title>
-            <mat-card-subtitle>All members and their statuses</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <ag-grid-angular
-                style="width: 100%; height: 370px;"
-                class="ag-theme-material"
-                [rowData]="rowData"
-                [columnDefs]="columnDefs"
-                [gridOptions]="gridOptions"
-                >
-            </ag-grid-angular>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div>
-
-    <div fxFlex="360px">
-      <div fxLayout="column" fxLayoutGap="20px">
-        <mat-card fxFlex>
-          <mat-card-header>
-            <mat-card-title>ROLES</mat-card-title>
-          </mat-card-header>
-          <mat-card-content style="height: 300px">
-            <div id="chartdiv" [style.width.%]="100" [style.height.px]="300"></div>
-          </mat-card-content>
-        </mat-card>
-
-        <div fxFlex>
-          <div fxLayout="row" fxLayoutGap="20px">
-            <mat-card fxFlex="50%">
-              <mat-card-header>
-                <mat-card-title>UP / ACTIVE</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div style="text-align: center">
-                  <span style="font-size: 100px">{{activeCount}}</span>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <mat-card fxFlex="50%">
-              <mat-card-header>
-                <mat-card-title>UNREACHABLE</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div style="text-align: center">
-                  <span style="font-size: 100px">{{unreachableCount}}</span>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>

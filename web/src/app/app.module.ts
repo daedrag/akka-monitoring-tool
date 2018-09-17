@@ -3,15 +3,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { MaterialModule } from './material.module';
+import { MaterialModule } from './modules/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AgGridModule } from 'ag-grid-angular';
 import { AmChartsModule } from '@amcharts/amcharts3-angular';
+import { MonitorContainerComponent } from './views/monitor-container/monitor-container.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MonitorContainerComponent
   ],
   imports: [
     BrowserModule,
