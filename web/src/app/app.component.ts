@@ -2,8 +2,7 @@ import { AmChart, AmChartsService } from '@amcharts/amcharts3-angular';
 import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 import { GridApi, GridOptions } from 'ag-grid-community';
 import * as _ from 'lodash';
-import { Subscription, BehaviorSubject, interval, Observable } from 'rxjs';
-import { throttle } from 'rxjs/operators';
+import { Subscription, BehaviorSubject, Observable } from 'rxjs';
 import { Member } from './models/cluster/member';
 import { MemberStatus } from './models/cluster/member-status';
 import { MemberRemovedMessage } from './models/socket/member-removed-message';
@@ -15,6 +14,7 @@ import {
 } from './models/table/member-table';
 import { WebsocketService } from './services/websocket.service';
 import { MatSnackBar } from '@angular/material';
+import { AkkaConfigHelper } from './helpers/akka-config-helper';
 
 @Component({
   selector: 'app-root',
@@ -23,8 +23,9 @@ import { MatSnackBar } from '@angular/material';
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   title = 'web';
+
+  seedNodes = 'akka.tcp://MyCluster@localhost:8081';
   ws: WebsocketService;
-  wsUrl = 'ws://localhost:8080/ws';
   wsOnline: Observable<boolean>;
   clusterStateSubscription: Subscription;
   socketNotificationSubscription: Subscription;
@@ -43,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       rowIdRenderer: params => '' + params.rowIndex,
       dateRenderer: params => params.value.toLocaleDateString() + ' ' + params.value.toLocaleTimeString()
     },
-    onGridReady: e => {
+    onGridReady: () => {
       this.gridApi = this.gridOptions.api;
       setTimeout(() => this.gridOptions.api.sizeColumnsToFit(), 100);
     }
@@ -69,6 +70,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.ws = new WebsocketService();
     this.wsOnline = this.ws.getSocketOpenedObservable();
+
+    this.socketNotificationSubscription = this.ws
+      .getSocketNotificationObservable()
+      .subscribe(notif => {
+        if (!notif) {
+          return;
+        }
+        this.snackBar.open(notif.message, 'Dismiss', {
+          duration: 3000
+        });
+      });
+
     this.clusterStateSubscription = this.ws
       .getClusterStateObservable()
       .subscribe(state => {
@@ -78,7 +91,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         // console.log(messageType, state);
 
         if (!clusterState) {
-          this.memberMap.forEach((member, key) => {
+          this.memberMap.forEach((member) => {
             if (member.Status !== UnknownStatus) {
               member.LastUpdated = now;
               member.Status = UnknownStatus;
@@ -235,7 +248,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   startWsConnection() {
     this.resetAll();
-    this.ws.establishWsConnection(this.wsUrl);
+    const url = AkkaConfigHelper.parseSeedNodesToWsUrls(this.seedNodes);
+    this.ws.establishWsConnection(url[0]);
   }
 
   stopWsConnection() {

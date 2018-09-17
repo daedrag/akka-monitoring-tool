@@ -17,7 +17,7 @@
             <div fxLayout="row" fxLayoutGap="10px">
               <form fxFlex fxFill>
                 <mat-form-field class="app-full-width">
-                  <input matInput placeholder="Seed node's WebSocket" [(ngModel)]="wsUrl" name="wsUrl">
+                  <input matInput placeholder="Seed node's WebSocket" [(ngModel)]="seedNodes" name="seedNodes">
                   <mat-icon matSuffix *ngIf="(wsOnline | async); else wsOfflineIcon" matTooltip="Connection is online">done_all</mat-icon>
                   <ng-template #wsOfflineIcon>
                     <mat-icon matSuffix color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
