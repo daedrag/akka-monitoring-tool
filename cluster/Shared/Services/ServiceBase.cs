@@ -13,6 +13,7 @@ namespace Shared.Services
         public string ClusterName { get; }
         public string HoconPath { get; }
         public ActorSystem ClusterSystem { get; private set; }
+        public Akka.Configuration.Config ClusterConfig { get; private set; }
 
         public event EventHandler OnClusterShutdown;
         private bool isShuttingDown;
@@ -29,8 +30,8 @@ namespace Shared.Services
         {
             PreStart();
             // create actor system
-            var config = HoconLoader.ParseConfig(HoconPath);
-            ClusterSystem = ActorSystem.Create(ClusterName, config);
+            ClusterConfig = HoconLoader.ParseConfig(HoconPath).WithPortFromEnvironmentVariable();
+            ClusterSystem = ActorSystem.Create(ClusterName, ClusterConfig);
 
             var cluster = Cluster.Get(ClusterSystem);
             // call PostStart only after joined cluster successfully

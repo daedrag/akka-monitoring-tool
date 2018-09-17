@@ -19,11 +19,14 @@ namespace SeedNode.Services
         public override void PostStart()
         {
             base.PostStart();
+
+            var clusterPort = ClusterConfig.GetInt("akka.remote.dot-netty.tcp.port");
+
             // This will *ONLY* bind to localhost, if you want to bind to all addresses
             // use http://*:8080 or http://+:8080 to bind to all addresses. 
             // See http://msdn.microsoft.com/en-us/library/system.net.httplistener.aspx 
             // for more information.
-            const string hostUrl = "http://localhost:8080/";
+            string hostUrl = $"http://localhost:{10000 + clusterPort}/";
             monitorApp = MonitorLib.ClusterMonitoring.Start(hostUrl, ClusterSystem);
             Console.WriteLine($"Web app is running at {hostUrl}");
         }
