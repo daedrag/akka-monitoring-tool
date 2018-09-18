@@ -90,8 +90,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         _.each(clusterState.Members, member => {
           if (!this.getAndUpdateMemberInfoInMap(statsInfo, member, now)) {
             const newMemberRow: MemberRow = {
-              Host: member.Address.Host,
-              Port: member.Address.Port,
+              Host: member.UniqueAddress.Address.Host,
+              Port: member.UniqueAddress.Address.Port,
               Role: member.Roles.join(', '),
               Status: MemberStatus[member.Status],
               UniqueId: member.UniqueAddress.Uid,

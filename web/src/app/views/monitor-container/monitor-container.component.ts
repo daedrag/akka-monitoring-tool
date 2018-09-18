@@ -163,7 +163,8 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
       return;
     }
     this.waitingForChanges = true;
-
+    this.statsInfo.memberCacheByUniqueId.clear();
+    this.statsInfo.memberRows = [];
     const wsUrl = AkkaConfigHelper.parseSeedNodeToWsUrl(this.seedNode);
     this.statsInfo.ws.establishWsConnection(wsUrl);
   }
@@ -176,12 +177,17 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   handleCellAction(action: string, uniqueId: number) {
+    if (!this.statsInfo || !this.statsInfo.ws) {
+      return;
+    }
+
     const memberRow = this.statsInfo.memberCacheByUniqueId.get(uniqueId);
     if (!memberRow) {
       return;
     }
 
     console.log('Action:', action, ', Member:', memberRow);
+    this.statsInfo.ws.sendAction(action, memberRow.UniqueId, memberRow.Host, memberRow.Port);
   }
 }
 
@@ -189,8 +195,8 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   selector: 'app-row-action-cell',
   template:
   `<span>
-    <button mat-button color="accent" (click)="callLeave()" [disabled]="!enabled">Leave</button>
-    <button mat-button color="warn" (click)="callDown()" [disabled]="!enabled">Down</button>
+    <button mat-button color="accent" (click)="callLeave()" [disabled]="!leaveEnabled">Leave</button>
+    <button mat-button color="warn" (click)="callDown()" [disabled]="!downEnabled">Down</button>
   </span>`,
   styles: [
       `.btn {
@@ -200,12 +206,16 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
 })
 export class RowActionCellComponent implements ICellRendererAngularComp {
   params: any;
-  enabled: boolean;
+  leaveEnabled: boolean;
+  downEnabled: boolean;
 
   agInit(params: any): void {
     this.params = params;
     if (this.params.value === 'Up') {
-      this.enabled = true;
+      this.leaveEnabled = true;
+    }
+    if (this.params.value === 'Unreachable') {
+      this.downEnabled = true;
     }
   }
 

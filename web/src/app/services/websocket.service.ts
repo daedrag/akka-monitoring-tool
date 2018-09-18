@@ -1,5 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ClusterStateMessage } from '../models/socket/cluster-state-message';
+import { ClusterActionMessage } from '../models/socket/cluster-action-message';
 
 export enum SocketNotificationType {
   Error,
@@ -103,6 +104,23 @@ export class WebsocketService {
 
   public getSocketNotificationObservable(): Observable<SocketNotification> {
     return this._socketNotificationSubject.asObservable();
+  }
+
+  public sendAction(action: string, memberUniqueId: number, memberHost: string, memberPort: number) {
+    if (!this._ws || this._ws.readyState !== this._ws.OPEN) {
+      this.setSocketNotification(SocketNotificationType.Warn, `Cannot send this [ ${action} ] action`);
+      return;
+    }
+
+    const actionMessage: ClusterActionMessage = {
+      Action: action,
+      Member: {
+        Host: memberHost,
+        Port: memberPort,
+        UniqueId: memberUniqueId
+      }
+    };
+    this._ws.send(JSON.stringify(actionMessage));
   }
 
 }
