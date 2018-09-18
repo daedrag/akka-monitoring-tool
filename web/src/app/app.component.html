@@ -8,14 +8,14 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<mat-tab-group color="accent">
-  <mat-tab *ngFor="let seedNode of seedNodes">
+<mat-tab-group dynamicHeight color="accent" [(selectedIndex)]="selectedIndex">
+  <mat-tab *ngFor="let statsInfo of statsInfoList">
     <ng-template mat-tab-label>
-      <mat-icon *ngIf="!seedNodeOnlineStatuses[seedNode]" color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
-      <mat-icon *ngIf="seedNodeOnlineStatuses[seedNode]" matTooltip="Connection is online">done_all</mat-icon>
-      <span style="margin-left: 4px">{{seedNodeTabTitles[seedNode]}}</span>
+      <mat-icon *ngIf="!statsInfo.isWsOnline" color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
+      <mat-icon *ngIf="statsInfo.isWsOnline" matTooltip="Connection is online">done_all</mat-icon>
+      <span style="margin-left: 4px">{{statsInfo.displayName}}</span>
     </ng-template>
-    <app-monitor-container [seedNode]="seedNode" (wsOnlineChange)="setWsOnlineChange(seedNode, $event)"></app-monitor-container>
   </mat-tab>
 </mat-tab-group>
+<app-monitor-container [statsInfo]="statsInfoList[selectedIndex]"></app-monitor-container>
 

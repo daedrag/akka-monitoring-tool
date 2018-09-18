@@ -7,15 +7,15 @@
             <div fxLayout="row" fxLayoutGap="10px">
               <form fxFlex fxFill>
                 <mat-form-field class="app-full-width">
-                  <input matInput placeholder="Seed node's WebSocket" [(ngModel)]="seedNode" name="seedNode">
-                  <mat-icon matSuffix *ngIf="(wsOnline | async); else wsOfflineIcon" matTooltip="Connection is online">done_all</mat-icon>
+                  <input matInput placeholder="Seed node" [(ngModel)]="seedNode" name="seedNode">
+                  <mat-icon matSuffix *ngIf="wsOnline else wsOfflineIcon" matTooltip="Connection is online">done_all</mat-icon>
                   <ng-template #wsOfflineIcon>
                     <mat-icon matSuffix color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
                   </ng-template>
                 </mat-form-field>
               </form>
               <button mat-raised-button style="height: 40px" matTooltip="Click to stop connection to this seed node"
-                *ngIf="(wsOnline | async); else wsOfflineBtn" color="accent"
+                *ngIf="wsOnline else wsOfflineBtn" color="accent"
                 (click)="stopWsConnection()">
                 Stop
               </button>
