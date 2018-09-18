@@ -12,6 +12,7 @@
                   <ng-template #wsOfflineIcon>
                     <mat-icon matSuffix color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
                   </ng-template>
+                  <mat-hint *ngIf="!wsOnline">Connection is offline</mat-hint>
                 </mat-form-field>
               </form>
               <button mat-raised-button style="height: 40px" matTooltip="Click to stop connection to this seed node"
@@ -21,8 +22,9 @@
               </button>
               <ng-template #wsOfflineBtn>
                 <button mat-raised-button style="height: 40px" matTooltip="Click to connect to this seed node"
-                  color="primary" (click)="startWsConnection()">
-                  Connect
+                  color="primary" (click)="startWsConnection()"
+                  [disabled]="waitingForChanges">
+                  {{ waitingForChanges ? 'Reconnecting...' : "Reconnect" }}
                 </button>
               </ng-template>
             </div>

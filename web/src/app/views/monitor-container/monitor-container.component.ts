@@ -37,6 +37,7 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   chart: AmChart;
   gridApi: GridApi;
 
+  waitingForChanges: boolean;
   seedNode: string;
   wsOnline: boolean;
   rowData: MemberRow[] = [];
@@ -76,30 +77,43 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   refreshAndCheckChanges() {
+    if (this.statsInfo) {
+      this.loadAllData();
+    } else {
+      this.resetAll();
+    }
+
+    this.checkGridChanges();
+    this.updateChart();
+  }
+
+  loadAllData() {
+    this.waitingForChanges = false;
     this.seedNode = this.statsInfo.seedNode;
     this.wsOnline = this.statsInfo.isWsOnline;
     this.rowData = [...this.statsInfo.memberRows];
     this.activeCount = this.statsInfo.activeCount;
     this.unreachableCount = this.statsInfo.unreachableCount;
     this.chartData = this.statsInfo.roleCount;
-    this.checkGridChanges();
-    this.updateChart();
+  }
+
+  resetAll() {
+    this.waitingForChanges = false;
+    this.seedNode = 'unknown';
+    this.wsOnline = false;
+    this.rowData = [];
+    this.activeCount = 0;
+    this.unreachableCount = 0;
+    this.chartData = [];
   }
 
   checkGridChanges() {
     // TODO: need to check why flashing does not work
     this.rowData = [...this.rowData];
     if (this.gridApi) {
-      // this.gridApi.refreshCells({ force: true });
+      this.gridApi.refreshCells({ force: true });
       this.gridApi.sizeColumnsToFit();
     }
-  }
-
-  resetAll() {
-    this.rowData = [];
-    this.activeCount = 0;
-    this.unreachableCount = 0;
-    this.chartData = [];
   }
 
   initializeChart() {
@@ -142,7 +156,8 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
 
   updateChart() {
     if (!this.chart) {
-      throw new Error('Should not call updateChart when chart is not initialized');
+      // throw new Error('Should not call updateChart when chart is not initialized');
+      return;
     }
     console.log('Updating chart...', this.chartData);
     this.amChartsService.updateChart(this.chart, () => {
@@ -154,6 +169,8 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
     if (!this.statsInfo || !this.statsInfo.ws) {
       return;
     }
+    this.waitingForChanges = true;
+
     const wsUrl = AkkaConfigHelper.parseSeedNodeToWsUrl(this.seedNode);
     this.statsInfo.ws.establishWsConnection(wsUrl);
   }

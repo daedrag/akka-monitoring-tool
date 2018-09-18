@@ -133,6 +133,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const statusSubscription = statsInfo.ws.getSocketOpenedObservable()
       .subscribe(isOnline => {
         statsInfo.isWsOnline = isOnline;
+        setTimeout(() => statsInfo.changeEvent.emit(), 500);
       });
     this.subscriptions.push(statusSubscription);
 
