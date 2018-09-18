@@ -118,38 +118,24 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
 
   initializeChart() {
     this.chart = this.amChartsService.makeChart('chartdiv', {
-      type: 'serial',
+      type: 'pie',
+      startDuration: 0,
       theme: 'none',
       dataProvider: [],
-      'valueAxes': [ {
-        'gridColor': '#FFFFFF',
-        'gridAlpha': 0.2,
-        'dashLength': 0
-      } ],
-      'gridAboveGraphs': true,
-      'startDuration': 1,
-      'graphs': [ {
-        'balloonText': '[[category]]: <b>[[value]]</b>',
-        'fillAlphas': 0.8,
-        'lineAlpha': 0.2,
-        'type': 'column',
-        'valueField': 'count'
-      } ],
-      'chartCursor': {
-        'categoryBalloonEnabled': false,
-        'cursorAlpha': 0,
-        'zoomable': false
+      valueField: 'count',
+      titleField: 'role',
+      legend: {
+        position: 'right',
+        marginRight: 100
       },
-      'categoryField': 'role',
-      'categoryAxis': {
-        'gridPosition': 'start',
-        'gridAlpha': 0,
-        'tickPosition': 'start',
-        'tickLength': 20
-      },
+      innerRadius: '30%',
       // export: {
       //   enabled: true
-      // }
+      // },
+      creditsPosition: 'bottom-left',
+      fontSize: 10,
+      labelText: '[[title]]',
+      labelRadius: -5
     });
   }
 
