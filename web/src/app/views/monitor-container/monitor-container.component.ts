@@ -5,6 +5,8 @@ import { AmChart, AmChartsService } from '@amcharts/amcharts3-angular';
 import * as _ from 'lodash';
 import { AkkaConfigHelper } from '../../helpers/akka-config-helper';
 import { StatsInfo } from '../../models/views/stats-info';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { MemberStatus } from '../../models/cluster/member-status';
 
 @Component({
   selector: 'app-monitor-container',
@@ -16,6 +18,7 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   @Input() statsInfo: StatsInfo;
 
   columnDefs = MemberColumnDef;
+
   gridOptions: GridOptions = {
     enableColResize: true,
     getRowNodeId: data => data.UniqueId,
@@ -26,13 +29,19 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
     suppressCellSelection: true,
     components: {
       rowIdRenderer: params => '' + params.rowIndex,
-      dateRenderer: params => params.value.toLocaleDateString() + ' ' + params.value.toLocaleTimeString()
+      dateRenderer: params => params.value.toLocaleDateString() + ' ' + params.value.toLocaleTimeString(),
     },
     onGridReady: () => {
       this.gridApi = this.gridOptions.api;
       setTimeout(() => this.gridOptions.api.sizeColumnsToFit(), 100);
     }
   };
+
+  frameworkComponents = {
+    actionCellRenderer: RowActionCellComponent
+  };
+
+  gridContext = { componentParent: this };
 
   chart: AmChart;
   gridApi: GridApi;
@@ -47,7 +56,7 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
 
   constructor(
     private amChartsService: AmChartsService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.subscribeToStatsInfo();
@@ -164,5 +173,56 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
       return;
     }
     this.statsInfo.ws.discardWsConnection();
+  }
+
+  handleCellAction(action: string, uniqueId: number) {
+    const memberRow = this.statsInfo.memberCacheByUniqueId.get(uniqueId);
+    if (!memberRow) {
+      return;
+    }
+
+    console.log('Action:', action, ', Member:', memberRow);
+  }
+}
+
+@Component({
+  selector: 'app-row-action-cell',
+  template:
+  `<span>
+    <button mat-button color="accent" (click)="callLeave()" [disabled]="!enabled">Leave</button>
+    <button mat-button color="warn" (click)="callDown()" [disabled]="!enabled">Down</button>
+  </span>`,
+  styles: [
+      `.btn {
+          line-height: 0.5
+      }`
+  ]
+})
+export class RowActionCellComponent implements ICellRendererAngularComp {
+  params: any;
+  enabled: boolean;
+
+  agInit(params: any): void {
+    this.params = params;
+    console.log(this.params);
+    if (this.params.value === 'Up') {
+      this.enabled = true;
+    }
+  }
+
+  refresh(): boolean {
+    return false;
+  }
+
+  callLeave() {
+    this.callParentAction('leave');
+  }
+
+  callDown() {
+    this.callParentAction('down');
+  }
+
+  callParentAction(action: string) {
+    this.params.context.componentParent.handleCellAction(action, this.params.node.id);
   }
 }

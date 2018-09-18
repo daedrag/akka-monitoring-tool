@@ -2,3 +2,9 @@
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~ag-grid-community/dist/styles/ag-grid.css';
 @import '~ag-grid-community/dist/styles/ag-theme-material.css';
+
+.ag-theme-material .ag-cell {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+

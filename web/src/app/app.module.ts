@@ -8,12 +8,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AgGridModule } from 'ag-grid-angular';
 import { AmChartsModule } from '@amcharts/amcharts3-angular';
-import { MonitorContainerComponent } from './views/monitor-container/monitor-container.component';
+import { MonitorContainerComponent, RowActionCellComponent } from './views/monitor-container/monitor-container.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MonitorContainerComponent
+    MonitorContainerComponent,
+    RowActionCellComponent
   ],
   imports: [
     BrowserModule,
@@ -22,7 +23,7 @@ import { MonitorContainerComponent } from './views/monitor-container/monitor-con
     ReactiveFormsModule,
     MaterialModule,
     FlexLayoutModule,
-    AgGridModule.withComponents([]),
+    AgGridModule.withComponents([RowActionCellComponent]),
     AmChartsModule
   ],
   providers: [],

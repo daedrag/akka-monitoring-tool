@@ -12,7 +12,7 @@
                   <ng-template #wsOfflineIcon>
                     <mat-icon matSuffix color="warn" matTooltip="Connection is offline">sync_problem</mat-icon>
                   </ng-template>
-                  <mat-hint *ngIf="!wsOnline">Connection is offline</mat-hint>
+                  <mat-hint>{{ wsOnline ? "Connection is OK" : "Connection is OFFLINE"}}</mat-hint>
                 </mat-form-field>
               </form>
               <button mat-raised-button style="height: 40px" matTooltip="Click to stop connection to this seed node"
@@ -43,6 +43,8 @@
                 [rowData]="rowData"
                 [columnDefs]="columnDefs"
                 [gridOptions]="gridOptions"
+                [frameworkComponents]="frameworkComponents"
+                [context]="gridContext"
                 >
             </ag-grid-angular>
           </mat-card-content>
