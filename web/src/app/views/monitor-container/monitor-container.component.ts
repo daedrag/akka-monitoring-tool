@@ -204,7 +204,6 @@ export class RowActionCellComponent implements ICellRendererAngularComp {
 
   agInit(params: any): void {
     this.params = params;
-    console.log(this.params);
     if (this.params.value === 'Up') {
       this.enabled = true;
     }
