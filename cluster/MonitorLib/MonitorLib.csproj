@@ -180,11 +180,13 @@
     <Compile Include="Actors\ClusterHealthWatcher.cs" />
     <Compile Include="ClusterMonitoring.cs" />
     <Compile Include="Compiled.cs" />
+    <Compile Include="Messages\ClusterActionMessage.cs" />
     <Compile Include="Messages\ClusterStateMessage.cs" />
     <Compile Include="Messages\MemberRemovedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sockets\WebSocket.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Stores\ClusterActionStore.cs" />
     <Compile Include="Stores\ClusterHealthStore.cs" />
   </ItemGroup>
   <ItemGroup>

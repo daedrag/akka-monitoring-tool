@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Microsoft.Owin.Hosting;
 using MonitorLib.Actors;
+using MonitorLib.Stores;
 using System;
 
 namespace MonitorLib
@@ -31,6 +32,7 @@ namespace MonitorLib
         {
             var watcher = actorSystem.ActorOf(ClusterHealthWatcher.Props(), "cluster-health-watcher");
             var webApp = WebApp.Start<Startup>(url);
+            ClusterActionStore.BindToActorSystem(actorSystem);
             return new DisposableResult(webApp, actorSystem, watcher);
         }
     }
