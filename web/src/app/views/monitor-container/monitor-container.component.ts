@@ -117,7 +117,6 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   initializeChart() {
-    console.log('Chart initialized!');
     this.chart = this.amChartsService.makeChart('chartdiv', {
       type: 'serial',
       theme: 'none',
@@ -159,7 +158,6 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
       // throw new Error('Should not call updateChart when chart is not initialized');
       return;
     }
-    console.log('Updating chart...', this.chartData);
     this.amChartsService.updateChart(this.chart, () => {
       this.chart.dataProvider = this.chartData;
     });

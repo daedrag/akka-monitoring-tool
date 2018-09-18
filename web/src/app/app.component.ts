@@ -36,7 +36,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     const seedNodes = this.seedNodeString.split(',');
-    this.statsInfoList = _.map(seedNodes, seedNode => {
+    const statsInfoList = _.map(seedNodes, seedNode => {
       const displayName = seedNode.split('@')[1];
       const statsInfo: StatsInfo = {
         seedNode: seedNode,
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       return statsInfo;
     });
 
-    _.each(this.statsInfoList, s => {
+    _.each(statsInfoList, s => {
       try {
         this.subscribeToWsEvents(s);
         this.subscribeToWsStatus(s);
@@ -64,6 +64,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         // TODO
       }
     });
+
+    setTimeout(() => this.statsInfoList = statsInfoList);
   }
 
   subscribeToWsEvents(statsInfo: StatsInfo) {
