@@ -13,17 +13,20 @@ namespace Shared.Config
 
         public static Akka.Configuration.Config WithPortFromEnvironmentVariable(this Akka.Configuration.Config clusterConfig)
         {
-            var actualPort = 0;
+            var actualPort = -1;
             var envPort = Environment.GetEnvironmentVariable("CLUSTER_PORT")?.Trim();
             if (!string.IsNullOrEmpty(envPort))
             {
                 int.TryParse(envPort, out actualPort);
             }
 
-            var finalConfig = ConfigurationFactory.ParseString($"akka.remote.dot-netty.tcp.port = {actualPort}")
+            if (actualPort != -1)
+            {
+                return ConfigurationFactory.ParseString($"akka.remote.dot-netty.tcp.port = {actualPort}")
                 .WithFallback(clusterConfig);
+            }
 
-            return finalConfig;
+            return clusterConfig;
         }
     }
 }
