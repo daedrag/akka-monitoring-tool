@@ -2,8 +2,11 @@
   <mat-toolbar-row>
     <span>Akka.Net Monitoring</span>
     <span class="spacer"></span>
+    <mat-chip-list *ngIf="clusterName">
+      <mat-chip color="accent" selected>Cluster: {{clusterName}}</mat-chip>
+    </mat-chip-list>
     <button mat-icon-button>
-      <mat-icon>settings</mat-icon>
+      <mat-icon (click)="openSettingDialog()">settings</mat-icon>
     </button>
   </mat-toolbar-row>
 </mat-toolbar>

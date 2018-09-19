@@ -9,7 +9,10 @@ import { Member } from './models/cluster/member';
 import { MemberStatus } from './models/cluster/member-status';
 import { MessageType } from './models/socket/message-types';
 import { MemberRemovedMessage } from './models/socket/member-removed-message';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialog } from '@angular/material';
+import { SettingDialogComponent } from './views/setting-dialog/setting-dialog.component';
+import { ClusterSettings } from './models/views/cluster-settings';
+import { ClusterSettingsService } from './services/cluster-settings.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +21,7 @@ import { MatSnackBar } from '@angular/material';
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  clusterName = 'APAC UAT';
   seedNodeString = 'akka.tcp://MyCluster@localhost:8081,akka.tcp://MyCluster@localhost:8082';
 
   selectedIndex = 0;
@@ -25,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   subscriptions: Subscription[] = [];
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private clusterSettingsService: ClusterSettingsService) {}
 
   ngOnInit(): void {
   }
@@ -177,6 +181,26 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   stopWsConnection(statsInfo: StatsInfo) {
     statsInfo.ws.discardWsConnection();
+  }
+
+  openSettingDialog() {
+    const clusterSettings: ClusterSettings = {
+      clusters: [],
+      default: ''
+    };
+
+    const dialogRef = this.dialog.open(SettingDialogComponent, {
+      data: clusterSettings
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        this.clusterSettingsService.setClusterSettings(undefined);
+        return;
+      }
+      console.log('Dialog result', result);
+      this.clusterSettingsService.setClusterSettings(result);
+    });
   }
 
 }

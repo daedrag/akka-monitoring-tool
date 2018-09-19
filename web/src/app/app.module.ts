@@ -9,12 +9,17 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { AgGridModule } from 'ag-grid-angular';
 import { AmChartsModule } from '@amcharts/amcharts3-angular';
 import { MonitorContainerComponent, RowActionCellComponent } from './views/monitor-container/monitor-container.component';
+import { SettingDialogComponent } from './views/setting-dialog/setting-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MonitorContainerComponent,
-    RowActionCellComponent
+    RowActionCellComponent,
+    SettingDialogComponent
+  ],
+  entryComponents: [
+    SettingDialogComponent
   ],
   imports: [
     BrowserModule,

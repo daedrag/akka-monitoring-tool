@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Cluster settings</h2>
+<div mat-dialog-content>
+  <p>Configure cluster alias name and its seed nodes here for easier management!</p>
+  <mat-list>
+    <mat-list-item *ngFor="let cluster of data.clusters; let i = index">
+      <div class="app-full-width" fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="space-between end">
+        <mat-form-field fxFlex="30%">
+          <input matInput placeholder="Cluster alias" name="alias" [(ngModel)]="cluster.alias">
+        </mat-form-field>
+
+        <mat-form-field fxFlex fxFill>
+          <input matInput placeholder="Seed nodes" name="seedNodes" [(ngModel)]="cluster.seedNodes">
+        </mat-form-field>
+
+        <div fxFlex="nogrow" style="height: 55px;">
+          <button mat-button color="warn" (click)="deleteCluster(i)">Delete</button>
+          <button mat-button [color]="data.default === cluster.alias ? 'primary' : ''" (click)="data.default = cluster.alias">Default</button>
+        </div>
+      </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <div class="app-full-width" fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="space-between end">
+        <mat-form-field fxFlex="30%">
+          <input matInput placeholder="Cluster alias" name="alias" [(ngModel)]="newCluster.alias">
+        </mat-form-field>
+
+        <mat-form-field fxFlex fxFill>
+          <input matInput placeholder="Seed nodes" name="seedNodes" [(ngModel)]="newCluster.seedNodes">
+        </mat-form-field>
+
+        <div fxFlex="nogrow" style="height: 55px;">
+          <button mat-button color="primary" (click)="addNewCluster()">Add</button>
+          <button mat-button disabled>Default</button>
+        </div>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<div mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial color="primary">Save</button>
+</div>
