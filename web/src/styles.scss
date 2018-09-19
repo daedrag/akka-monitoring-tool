@@ -3,7 +3,7 @@
 @import '~ag-grid-community/dist/styles/ag-grid.css';
 @import '~ag-grid-community/dist/styles/ag-theme-material.css';
 
-.ag-theme-material .ag-cell {
+.ag-header-cell, .ag-header-group-cell, .ag-cell {
   padding-left: 12px;
   padding-right: 12px;
 }
