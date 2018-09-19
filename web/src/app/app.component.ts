@@ -11,7 +11,7 @@ import { MessageType } from './models/socket/message-types';
 import { MemberRemovedMessage } from './models/socket/member-removed-message';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { SettingDialogComponent } from './views/setting-dialog/setting-dialog.component';
-import { ClusterSettings } from './models/views/cluster-settings';
+import { ClusterSettings, ClusterWithSeedNodes } from './models/views/cluster-settings';
 import { ClusterSettingsService } from './services/cluster-settings.service';
 
 @Component({
@@ -21,8 +21,8 @@ import { ClusterSettingsService } from './services/cluster-settings.service';
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  clusterName = 'APAC UAT';
-  seedNodeString = 'akka.tcp://MyCluster@localhost:8081,akka.tcp://MyCluster@localhost:8082';
+  clusterName = '';
+  seedNodeString = '';
 
   selectedIndex = 0;
   statsInfoList = [];
@@ -32,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private clusterSettingsService: ClusterSettingsService) {}
 
   ngOnInit(): void {
+    this.initializeClusterNameAndSeedNodesToConnect();
   }
 
   ngOnDestroy(): void {
@@ -39,6 +40,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.initializeSeedNodeConnections();
+  }
+
+  initializeClusterNameAndSeedNodesToConnect() {
+    const clusterSettings: ClusterSettings = this.clusterSettingsService.getClusterSettings();
+    this.clusterName = clusterSettings.default;
+    const clusterWithSeedNodes = _.find(clusterSettings.clusters, (cluster: ClusterWithSeedNodes) => cluster.alias === this.clusterName);
+    this.seedNodeString = clusterWithSeedNodes && clusterWithSeedNodes.seedNodes;
+  }
+
+  initializeSeedNodeConnections() {
+    if (!this.seedNodeString) {
+      return;
+    }
     const seedNodes = this.seedNodeString.split(',');
     const statsInfoList = _.map(seedNodes, seedNode => {
       const displayName = seedNode.split('@')[1];
@@ -70,6 +85,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     setTimeout(() => this.statsInfoList = statsInfoList);
+  }
+
+  terminateAllSeedNodeConnections() {
+    _.each(this.statsInfoList, (statsInfo: StatsInfo) => {
+      this.stopWsConnection(statsInfo);
+    });
+    this.unsubscribeAll();
   }
 
   subscribeToWsEvents(statsInfo: StatsInfo) {
@@ -176,19 +198,21 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   startWsConnection(statsInfo: StatsInfo) {
+    if (!statsInfo.ws) {
+      return;
+    }
     statsInfo.ws.establishWsConnection(statsInfo.wsUrl);
   }
 
   stopWsConnection(statsInfo: StatsInfo) {
+    if (!statsInfo.ws) {
+      return;
+    }
     statsInfo.ws.discardWsConnection();
   }
 
   openSettingDialog() {
-    const clusterSettings: ClusterSettings = {
-      clusters: [],
-      default: ''
-    };
-
+    const clusterSettings: ClusterSettings = this.clusterSettingsService.getClusterSettings();
     const dialogRef = this.dialog.open(SettingDialogComponent, {
       data: clusterSettings
     });
@@ -200,6 +224,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       console.log('Dialog result', result);
       this.clusterSettingsService.setClusterSettings(result);
+
+      this.terminateAllSeedNodeConnections();
+      this.initializeClusterNameAndSeedNodesToConnect();
+      this.initializeSeedNodeConnections();
     });
   }
 
