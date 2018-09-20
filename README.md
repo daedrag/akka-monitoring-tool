@@ -6,6 +6,10 @@ and allow cluster admin to control cluster "leave/down" of each nodes.
 In fact, although there are more powerful tools to do the job, such as Petabridge.cmd, I still want to try this idea
 as an alternative approach to combine the web technology and make it a little bit visually attractive.
 
+## Screenshot
+
+![Screenshot](/screenshot.jpg?raw=true)
+
 ## Design in a nutshell
 
 The fundamental idea of this project is to allow a web application (Angular app) connect to an Akka.NET cluster
