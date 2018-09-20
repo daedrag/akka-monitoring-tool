@@ -7,6 +7,8 @@ namespace MonitorLib.Actors
 {
     class ClusterHealthWatcher : ReceiveActor
     {
+        private int _recheckCount = 1;
+        private readonly int _recheckLimit = 3;
         private ClusterEvent.CurrentClusterState CurrentClusterState => Cluster.Get(Context.System).State;
 
         public ClusterHealthWatcher()
@@ -28,28 +30,58 @@ namespace MonitorLib.Actors
         {
             Receive<ClusterEvent.MemberRemoved>(m =>
             {
+                ClearRecheckEvent();
                 ClusterHealthStore.Instance.NotifyMemberRemoved(CurrentClusterState, m.Member);
+                StartRecheckEvent();
             });
 
             Receive<ClusterEvent.IClusterDomainEvent>(m =>
             {
-                //Console.WriteLine(m);
-                //Console.WriteLine(JsonConvert.ToString(m));
-                //CurrentClusterState.Members
-                //    .ToList()
-                //    .ForEach(member => Console.WriteLine($">> {String.Join(", ", member.Roles.ToArray())}, {member.Status}"));
+                ClearRecheckEvent();
                 ClusterHealthStore.Instance.NotifyNewCurrentState(CurrentClusterState);
+                StartRecheckEvent();
             });
 
             Receive<ClusterEvent.CurrentClusterState>(m =>
             {
+                ClearRecheckEvent();
                 ClusterHealthStore.Instance.NotifyNewCurrentState(m);
+                StartRecheckEvent();
+            });
+
+            Receive<ReceiveTimeout>(t =>
+            {
+                if (IsRecheckReachedLimit()) return;
+                ClusterHealthStore.Instance.NotifyNewCurrentState(CurrentClusterState);
+                StartNextRecheckEvent();
             });
 
             ReceiveAny(m =>
             {
                 Console.WriteLine($"Unhandled message: {m}");
             });
+        }
+
+        private bool IsRecheckReachedLimit()
+        {
+            return _recheckCount >= _recheckLimit;
+        }
+
+        private void ClearRecheckEvent()
+        {
+            SetReceiveTimeout(null);
+        }
+
+        private void StartRecheckEvent()
+        {
+            _recheckCount = 1;
+            SetReceiveTimeout(TimeSpan.FromSeconds(_recheckCount));
+        }
+
+        private void StartNextRecheckEvent()
+        {
+            _recheckCount++;
+            SetReceiveTimeout(TimeSpan.FromSeconds(_recheckCount));
         }
 
         public static Props Props()
