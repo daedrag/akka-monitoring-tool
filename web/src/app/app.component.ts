@@ -98,6 +98,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const clusterStateSubscription = statsInfo.ws
       .getClusterStateObservable()
       .subscribe(message => {
+        console.log(message);
         const now = new Date();
         const clusterState = message && message.ClusterState;
         const messageType = message && message.Type;
@@ -134,13 +135,24 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           this.getAndUpdateMemberInfoInMap(statsInfo, member, now, MemberStatus.Removed);
         }
 
+        // update status for currently unreachable members
+        const currentlyUnreachableIds = [];
         _.each(clusterState.Unreachable, member => {
+          currentlyUnreachableIds.push(member.UniqueAddress.Uid);
           this.getAndUpdateMemberInfoInMap(statsInfo, member, now, MemberStatus.Unreachable);
+        });
+
+        // for previously unreachable members, we need to update status if any are removed
+        const unreachableStatus = MemberStatus[MemberStatus.Unreachable];
+        statsInfo.memberCacheByUniqueId.forEach((member, uniqueId) => {
+          if (member.Status !== unreachableStatus || currentlyUnreachableIds.includes(uniqueId)) {
+            return;
+          }
+          member.Status = MemberStatus[MemberStatus.Removed];
         });
 
         const memberGroup = _.groupBy(statsInfo.memberRows, (member: MemberRow) => member.Status);
         const activeStatus = MemberStatus[MemberStatus.Up];
-        const unreachableStatus = MemberStatus[MemberStatus.Unreachable];
 
         statsInfo.activeCount = (memberGroup[activeStatus] || []).length;
         statsInfo.unreachableCount = (memberGroup[unreachableStatus] || []).length;
@@ -219,10 +231,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (!result) {
-        this.clusterSettingsService.setClusterSettings(undefined);
         return;
       }
-      console.log('Dialog result', result);
       this.clusterSettingsService.setClusterSettings(result);
 
       this.terminateAllSeedNodeConnections();
