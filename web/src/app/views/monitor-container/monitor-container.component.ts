@@ -46,6 +46,8 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
   chart: AmChart;
   gridApi: GridApi;
 
+  removedMembersExisted: boolean;
+
   waitingForChanges: boolean;
   seedNode: string;
   wsOnline: boolean;
@@ -81,6 +83,7 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
     }
 
     this.statsInfo.changeEvent.subscribe(e => {
+      this.removedMembersExisted = _.some(this.statsInfo.memberRows, (m: MemberRow) => m.Status === 'Removed');
       this.refreshAndCheckChanges();
     });
   }
@@ -188,6 +191,23 @@ export class MonitorContainerComponent implements OnInit, OnDestroy, AfterViewIn
 
     console.log('Action:', action, ', Member:', memberRow);
     this.statsInfo.ws.sendAction(action, memberRow.UniqueId, memberRow.Host, memberRow.Port);
+  }
+
+  deleteRemovedMembers() {
+    if (!this.statsInfo) {
+      return;
+    }
+
+    const removedStatus = MemberStatus[MemberStatus.Removed];
+    const memberRowsToKeep = [];
+    _.each(this.statsInfo.memberRows, (member: MemberRow) => {
+      if (member.Status !== removedStatus) {
+        memberRowsToKeep.push(member);
+      } else {
+        this.statsInfo.memberCacheByUniqueId.delete(member.UniqueId);
+      }
+    });
+    this.statsInfo.memberRows = memberRowsToKeep;
   }
 }
 

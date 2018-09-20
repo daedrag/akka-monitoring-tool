@@ -38,7 +38,7 @@
           </mat-card-header>
           <mat-card-content>
             <ag-grid-angular
-                style="width: 100%; height: 370px;"
+                style="width: 100%; height: 330px;"
                 class="ag-theme-material"
                 [rowData]="rowData"
                 [columnDefs]="columnDefs"
@@ -48,6 +48,12 @@
                 >
             </ag-grid-angular>
           </mat-card-content>
+          <mat-card-actions>
+            <button mat-stroked-button
+              color="primary" matToolip="Delete removed members"
+              [disabled]="!removedMembersExisted"
+              (click)="deleteRemovedMembers()">CLEAN UP</button>
+          </mat-card-actions>
         </mat-card>
       </div>
     </div>

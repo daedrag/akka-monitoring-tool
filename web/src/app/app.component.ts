@@ -98,7 +98,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const clusterStateSubscription = statsInfo.ws
       .getClusterStateObservable()
       .subscribe(message => {
-        console.log(message);
         const now = new Date();
         const clusterState = message && message.ClusterState;
         const messageType = message && message.Type;
